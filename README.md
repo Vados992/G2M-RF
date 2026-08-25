@@ -34,16 +34,27 @@ A PASS result requires real independent data. Synthetic demo results only verify
 
 ## Installation
 
+Run the project as a Python package. **Do not execute files inside `src/g2mrf/` directly** (for example, `python src/g2mrf/cli.py`), because the package uses relative imports.
+
 ```bash
+git clone https://github.com/Vados992/G2M-RF.git
+cd G2M-RF
 python -m venv .venv
 # Linux/macOS
 source .venv/bin/activate
 # Windows PowerShell
-# .venv\Scripts\Activate.ps1
+# .\.venv\Scripts\Activate.ps1
 
 python -m pip install --upgrade pip
-pip install -e .[dev]
+pip install -e ".[dev]"
 pytest
+g2mrf --help
+```
+
+If you prefer module execution after installation, use:
+
+```bash
+python -m g2mrf.cli --help
 ```
 
 ## Run the complete synthetic pipeline
