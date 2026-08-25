@@ -63,7 +63,7 @@ def test_standardizer_rejects_variant_count_change_at_transform():
 
 def test_family_split_rejects_invalid_fractions():
     ids = np.array(["F1", "F2", "F3"])
-    with pytest.raises(ValueError, match="train \+ internal"):
+    with pytest.raises(ValueError, match=r"train \+ internal"):
         family_aware_split(ids, train=0.9, internal=0.2)
 
 
