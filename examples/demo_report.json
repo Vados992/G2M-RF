@@ -1,0 +1,75 @@
+{
+  "framework": "G2M-RF v2.0",
+  "config": {
+    "gates": {
+      "g1_delta_r2": 0.02,
+      "g1_class_delta_r2": 0.01,
+      "g2_delta_r2": 0.01,
+      "g3_nrmse_gain": 0.01,
+      "g4_nrmse_gain": 0.01,
+      "g5_eta": 0.9,
+      "g5_eta_ci_lower": 0.75,
+      "g5_direct_floor": 0.05,
+      "alpha": 0.05,
+      "max_k": 3
+    },
+    "model": {
+      "lambda_": 1.0,
+      "solver": "auto",
+      "exact_threshold": 2500,
+      "nystrom_components": 512,
+      "pca_k": 2,
+      "bootstrap": 100,
+      "seed": 1601001
+    }
+  },
+  "metrics": {
+    "n_train": 490,
+    "n_internal": 116,
+    "n_external": 114,
+    "k": 2,
+    "r2_cov": 0.10168106004702204,
+    "r2_direct": 0.5335834502225394,
+    "r2_mgc": 0.5423739929165381,
+    "r2_pca": 0.5356108551748138,
+    "dR2_direct": 0.43190239017551735,
+    "dR2_mgc": 0.44069293286951605,
+    "dR2_direct_ci_low": 0.3812106977458037,
+    "dR2_direct_ci_high": 0.49726511784831945,
+    "eta": 1.020353077209011,
+    "eta_ci_low": 0.9904702509570077,
+    "eta_ci_high": 1.0418971190617103,
+    "nrmse_cov": 0.06753506091808327,
+    "nrmse_direct": 0.04866323696161614,
+    "nrmse_mgc": 0.04820247816638906,
+    "nrmse_pca": 0.04855735785584979,
+    "g1_class_pass_count": 5,
+    "g2_theta_pass_count": 2,
+    "theta_multivariate_positive": true,
+    "internal_nrmse_direct": 0.053770842835503756,
+    "external_nrmse_direct": 0.04866323696161614
+  },
+  "transfer_ratio": 0.9050116084378136,
+  "landmark_classes": [
+    {"class": "class_1", "delta_r2": 0.43855246084747324, "p": 0.009900990099009901, "p_adjusted": 0.04950495049504951, "pass": true},
+    {"class": "class_2", "delta_r2": 0.42885313021735294, "p": 0.009900990099009901, "p_adjusted": 0.04950495049504951, "pass": true},
+    {"class": "class_3", "delta_r2": 0.4303524404639891, "p": 0.009900990099009901, "p_adjusted": 0.04950495049504951, "pass": true},
+    {"class": "class_4", "delta_r2": 0.4352853071454068, "p": 0.009900990099009901, "p_adjusted": 0.04950495049504951, "pass": true},
+    {"class": "class_5", "delta_r2": 0.4328696844088814, "p": 0.009900990099009901, "p_adjusted": 0.04950495049504951, "pass": true}
+  ],
+  "theta_tests": [
+    {"theta": 0, "delta_r2": 0.48099605287492897, "p": 0.009900990099009901, "p_adjusted": 0.019801980198019802, "pass": true},
+    {"theta": 1, "delta_r2": 0.4977932387775096, "p": 0.009900990099009901, "p_adjusted": 0.019801980198019802, "pass": true}
+  ],
+  "decision": {
+    "gates": [
+      {"name": "G1", "passed": true, "reason": "external genome-wide geometry signal", "metrics": {"dR2_direct": 0.43190239017551735, "ci_low": 0.3812106977458037, "class_pass_count": 5}},
+      {"name": "G2", "passed": true, "reason": "genome predicts preregistered morphology parameters", "metrics": {"pass_count": 2, "needed": 1}},
+      {"name": "G3", "passed": true, "reason": "MGC bottleneck improves geometry over covariates", "metrics": {"nrmse_mgc": 0.04820247816638906, "nrmse_cov": 0.06753506091808327}},
+      {"name": "G4", "passed": false, "reason": "MGC is privileged versus matched-dimensional PCA", "metrics": {"nrmse_mgc": 0.04820247816638906, "nrmse_pca": 0.04855735785584979}},
+      {"name": "G5", "passed": true, "reason": "genomic-morphological compression", "metrics": {"dR2_direct": 0.43190239017551735, "eta": 1.020353077209011, "eta_ci_low": 0.9904702509570077, "k": 2, "external_pass": true}}
+    ],
+    "strong_support": false,
+    "label": "MGC NOT PRIVILEGED VS PCA"
+  }
+}
