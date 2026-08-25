@@ -1,0 +1,19 @@
+gates:
+  g1_delta_r2: 0.02
+  g1_class_delta_r2: 0.01
+  g2_delta_r2: 0.01
+  g3_nrmse_gain: 0.01
+  g4_nrmse_gain: 0.01
+  g5_eta: 0.90
+  g5_eta_ci_lower: 0.75
+  g5_direct_floor: 0.05
+  alpha: 0.05
+  max_k: 3
+model:
+  lambda_: 1.0
+  solver: auto
+  exact_threshold: 2500
+  nystrom_components: 512
+  pca_k: 2
+  bootstrap: 300
+  seed: 1601001
