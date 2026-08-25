@@ -17,7 +17,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.6"]
+dev = [
+  "pytest>=8",
+  "pytest-cov>=5",
+  "pytest-timeout>=2.3",
+  "ruff>=0.6",
+]
 vcf = ["cyvcf2>=0.31"]
 
 [project.scripts]
@@ -28,7 +33,20 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "-q"
+addopts = "-q --strict-config --strict-markers"
+
+[tool.coverage.run]
+branch = true
+source = ["g2mrf"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 85
+exclude_also = [
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]
 
 [tool.ruff]
 line-length = 100
