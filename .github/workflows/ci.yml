@@ -1,7 +1,13 @@
 name: CI
+
 on:
   push:
   pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -17,3 +23,7 @@ jobs:
       - run: pip install -e .[dev]
       - run: pytest
       - run: ruff check src tests
+      - name: CLI smoke test
+        run: |
+          g2mrf --help
+          g2mrf plan --h2 0.35 --me 75000 --n 20000 50000 --target 0.05
