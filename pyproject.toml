@@ -32,3 +32,8 @@ addopts = "-q"
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+# Stable correctness-oriented baseline. Formatting/import ordering is kept separate
+# from executable correctness so CI behavior does not change with Ruff defaults.
+select = ["E4", "E7", "E9", "F"]
