@@ -46,26 +46,20 @@ def run_confirmatory(bundle: DataBundle, cfg: RunConfig | None = None) -> dict:
     Xtr, Xit, Xex = gs.transform(tr.G), gs.transform(it.G), gs.transform(ex.G)
 
     theta_tr = fit_population_m4(tr.angles, tr.radii)
-    theta_it = fit_population_m4(it.angles, it.radii)
     theta_ex = fit_population_m4(ex.angles, ex.radii)
     k = theta_tr.shape[1]
 
-    pred_cov_it = _ols_fit_predict(tr.C, tr.radii, it.C)
     pred_cov_ex = _ols_fit_predict(tr.C, tr.radii, ex.C)
 
     pred_direct_it, _ = _fit_genomic(Xtr, tr.radii, tr.C, Xit, it.C, cfg)
     pred_direct_ex, _ = _fit_genomic(Xtr, tr.radii, tr.C, Xex, ex.C, cfg)
 
-    pred_theta_it, _ = _fit_genomic(Xtr, theta_tr, tr.C, Xit, it.C, cfg)
     pred_theta_ex, _ = _fit_genomic(Xtr, theta_tr, tr.C, Xex, ex.C, cfg)
-    pred_mgc_it = reconstruct_m4(tr.angles, pred_theta_it)
     pred_mgc_ex = reconstruct_m4(tr.angles, pred_theta_ex)
 
     pca = PCA(n_components=k, svd_solver="full").fit(tr.radii)
     pca_tr = pca.transform(tr.radii)
-    pred_pca_scores_it, _ = _fit_genomic(Xtr, pca_tr, tr.C, Xit, it.C, cfg)
     pred_pca_scores_ex, _ = _fit_genomic(Xtr, pca_tr, tr.C, Xex, ex.C, cfg)
-    pred_pca_it = pca.inverse_transform(pred_pca_scores_it)
     pred_pca_ex = pca.inverse_transform(pred_pca_scores_ex)
 
     B = cfg.model.bootstrap
