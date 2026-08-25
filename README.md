@@ -4,7 +4,7 @@ Executable research implementation of **G2M-RF — Genotype → Morphology Resea
 
 **System architect:** Vadym Tsinderhoz  
 **Status:** research software / pre-data confirmatory framework  
-**Theory document:** `docs/G2M-RF_v2.0_FULL_MATHEMATICAL_EDITION_RU_24082026.pdf`
+**Theory manifest:** `docs/THEORY_DOCUMENT.md` (canonical PDF filename + SHA-256)
 
 This repository turns the mathematical protocol into reproducible code. It does **not** claim that the biological hypothesis is already validated. The code is designed to make the hypothesis testable and falsifiable on independent genotype + morphology cohorts.
 
@@ -110,7 +110,7 @@ src/g2mrf/
 
 tests/            mathematical, statistical and pipeline tests
 configs/          frozen example configuration
-docs/             theory PDF and implementation documentation
+docs/             theory manifest and implementation documentation
 scripts/          optional data conversion/publishing helpers
 .github/workflows CI
 ```
