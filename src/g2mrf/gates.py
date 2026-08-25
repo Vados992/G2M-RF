@@ -5,6 +5,13 @@ from dataclasses import asdict, dataclass
 
 from .config import GateConfig
 
+_NUMERIC_ATOL = 1e-12
+
+
+def _geq(value: float, threshold: float) -> bool:
+    """Numerically stable inclusive comparison for pre-registered decimal thresholds."""
+    return bool(math.isfinite(value) and value >= threshold - _NUMERIC_ATOL)
+
 
 @dataclass
 class GateResult:
@@ -39,18 +46,16 @@ def evaluate_gates(
     no_leakage: bool = True,
 ) -> DecisionReport:
     class_ok = metrics.get("g1_class_pass_count", 0) >= 3
-    g1 = (
-        metrics["dR2_direct"] >= cfg.g1_delta_r2
-        and metrics["dR2_direct_ci_low"] > 0
-        and class_ok
-    )
+    d_direct = float(metrics["dR2_direct"])
+    d_direct_ci_low = float(metrics["dR2_direct_ci_low"])
+    g1 = _geq(d_direct, cfg.g1_delta_r2) and d_direct_ci_low > 0.0 and class_ok
     G1 = GateResult(
         "G1",
         g1,
         "external genome-wide geometry signal",
         {
-            "dR2_direct": metrics["dR2_direct"],
-            "ci_low": metrics["dR2_direct_ci_low"],
+            "dR2_direct": d_direct,
+            "ci_low": d_direct_ci_low,
             "class_pass_count": metrics.get("g1_class_pass_count", 0),
         },
     )
@@ -70,31 +75,31 @@ def evaluate_gates(
         {"pass_count": metrics.get("g2_theta_pass_count", 0), "needed": needed},
     )
 
-    g3 = metrics["nrmse_mgc"] <= metrics["nrmse_cov"] - cfg.g3_nrmse_gain
+    nrmse_mgc = float(metrics["nrmse_mgc"])
+    nrmse_cov = float(metrics["nrmse_cov"])
+    g3 = _geq(nrmse_cov - nrmse_mgc, cfg.g3_nrmse_gain)
     G3 = GateResult(
         "G3",
         g3,
         "MGC bottleneck improves geometry over covariates",
-        {"nrmse_mgc": metrics["nrmse_mgc"], "nrmse_cov": metrics["nrmse_cov"]},
+        {"nrmse_mgc": nrmse_mgc, "nrmse_cov": nrmse_cov},
     )
 
-    g4 = metrics["nrmse_mgc"] <= metrics["nrmse_pca"] - cfg.g4_nrmse_gain
+    nrmse_pca = float(metrics["nrmse_pca"])
+    g4 = _geq(nrmse_pca - nrmse_mgc, cfg.g4_nrmse_gain)
     G4 = GateResult(
         "G4",
         g4,
         "MGC is privileged versus matched-dimensional PCA",
-        {"nrmse_mgc": metrics["nrmse_mgc"], "nrmse_pca": metrics["nrmse_pca"]},
+        {"nrmse_mgc": nrmse_mgc, "nrmse_pca": nrmse_pca},
     )
 
-    direct = metrics["dR2_direct"]
-    eta = metrics.get("eta", float("nan"))
-    eta_low = metrics.get("eta_ci_low", float("nan"))
+    eta = float(metrics.get("eta", float("nan")))
+    eta_low = float(metrics.get("eta_ci_low", float("nan")))
     g5_core = (
-        direct >= cfg.g5_direct_floor
-        and math.isfinite(eta)
-        and eta >= cfg.g5_eta
-        and math.isfinite(eta_low)
-        and eta_low >= cfg.g5_eta_ci_lower
+        _geq(d_direct, cfg.g5_direct_floor)
+        and _geq(eta, cfg.g5_eta)
+        and _geq(eta_low, cfg.g5_eta_ci_lower)
         and k <= cfg.max_k
     )
     g5 = g5_core and external_pass
@@ -103,7 +108,7 @@ def evaluate_gates(
         g5,
         "genomic-morphological compression",
         {
-            "dR2_direct": direct,
+            "dR2_direct": d_direct,
             "eta": eta,
             "eta_ci_low": eta_low,
             "k": k,
