@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict
 from pathlib import Path
 
@@ -205,7 +206,7 @@ def _json_safe(value):
         return {k: _json_safe(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
         return [_json_safe(v) for v in value]
-    if isinstance(value, (np.integer,)):
+    if isinstance(value, np.integer):
         return int(value)
     if isinstance(value, (np.floating, float)):
         v = float(value)
