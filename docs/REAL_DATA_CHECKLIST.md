@@ -1,0 +1,22 @@
+# Real-data execution checklist
+
+- [ ] Ethics approval and consent cover genomic + morphology analysis.
+- [ ] Participant IDs are pseudonymized before entering the analysis environment.
+- [ ] Raw WGS/scanner data remain outside the repository.
+- [ ] Pangenome/reference build and variant pipeline are version-locked.
+- [ ] Landmark dictionary and acquisition pose are version-locked.
+- [ ] Repeat-acquisition subset estimates phenotype-specific reliability.
+- [ ] Kinship components are computed before the split.
+- [ ] TRAIN/INTERNAL/EXTERNAL manifests are hashed and frozen.
+- [ ] TRAIN-only allele frequencies and scalers are archived.
+- [ ] Morphology parameters are estimated without genome access.
+- [ ] PCA basis is trained on TRAIN geometry only.
+- [ ] Nested CV and regularization are locked before INTERNAL TEST.
+- [ ] Power simulation is completed before TEST phenotype access.
+- [ ] Underpowered status is recorded before outcomes are known.
+- [ ] Negative and positive software controls pass.
+- [ ] INTERNAL TEST is opened once.
+- [ ] Parameter/config hashes remain unchanged afterward.
+- [ ] EXTERNAL is executed without re-tuning.
+- [ ] G1–G5 and all failed gates are reported.
+- [ ] Confirmatory and exploratory analyses are separated.
