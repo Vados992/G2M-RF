@@ -23,14 +23,19 @@ This repository turns the mathematical protocol into reproducible code. It does 
 - Holm multiplicity correction;
 - deterministic family-aware split;
 - Daetwyler-style **planning envelope** for N = 20k / 50k / 100k / 200k / 500k;
+- strict analysis-ready data schema and RFC-compatible JSON report output;
+- runtime software provenance in every confirmatory report;
 - synthetic end-to-end dataset and reproducible demo;
-- unit/property tests, Docker image and GitHub Actions CI.
+- layered unit, numerical, integration, reproducibility, adversarial, G1–G5 and scaling-regression tests;
+- wheel, Docker and cross-platform GitHub Actions verification.
 
 ## Important scientific boundary
 
 `g2mrf plan` is a **power/planning tool only**. Its predicted `R²` must never be substituted for an observed external `ΔR²` when evaluating G1–G5.
 
 A PASS result requires real independent data. Synthetic demo results only verify software behavior.
+
+A green GitHub Actions run means the current implementation passed its software/numerical verification suite. It **does not** mean the biological G2M-RF hypothesis has been empirically validated. See `docs/TESTING.md` for the exact scope of CI.
 
 ## Installation
 
@@ -47,7 +52,8 @@ source .venv/bin/activate
 
 python -m pip install --upgrade pip
 pip install -e ".[dev]"
-pytest
+pip check
+pytest --timeout=120
 g2mrf --help
 ```
 
@@ -57,6 +63,18 @@ If you prefer module execution after installation, use:
 python -m g2mrf.cli --help
 ```
 
+## Research-grade local verification
+
+```bash
+ruff check src tests scripts
+pytest --timeout=120 --cov=g2mrf --cov-branch --cov-report=term-missing
+pip wheel . --no-deps -w dist
+docker build -t g2mrf .
+docker run --rm g2mrf plan --h2 0.35 --me 75000 --n 20000 --target 0.05
+```
+
+GitHub CI additionally runs the full test suite on Ubuntu/Python 3.10 and 3.12, Windows/Python 3.11 and macOS/Python 3.11, while Ubuntu/Python 3.11 is the branch-coverage, packaging and Docker reference job.
+
 ## Run the complete synthetic pipeline
 
 ```bash
@@ -64,6 +82,8 @@ g2mrf demo --config configs/default.yaml --out results/demo_report.json
 ```
 
 The command performs a deterministic family-aware split into TRAIN / INTERNAL / EXTERNAL, estimates morphology parameters independently of genotype, fits all competing prediction branches, computes bootstrap evidence and returns the G1–G5 decision chain.
+
+The generated JSON report includes the frozen configuration and software provenance: G2M-RF, Python, NumPy, SciPy, scikit-learn and PyYAML versions, operating platform and CI commit SHA when available. Non-finite analytical quantities are serialized as JSON `null`, never non-standard `NaN`/`Infinity` tokens.
 
 ## Planning table
 
@@ -83,13 +103,13 @@ where `N_train` is **TRAIN size**, not the total internal cohort size.
 
 Create an `.npz` bundle containing:
 
-- `sample_ids`: shape `(N,)`
-- `family_ids`: shape `(N,)`
-- `G`: genotype dosage matrix `(N, M)` with values 0/1/2 and optional NaN
-- `C`: allowed covariates `(N, Q)`; do not include an intercept (the code adds it)
-- `radii`: height-normalized radial landmarks `(N, L)`
-- `angles`: fixed angles `(L,)` in radians
-- `landmark_classes`: five or more preregistered class labels `(L,)`
+- `sample_ids`: shape `(N,)`, unique participant identifiers;
+- `family_ids`: shape `(N,)`;
+- `G`: genotype dosage matrix `(N, M)` with values in `[0,2]` and optional NaN;
+- `C`: finite allowed covariates `(N, Q)`; do not include an intercept (the code adds it);
+- `radii`: finite, nonnegative height-normalized radial landmarks `(N, L)`;
+- `angles`: fixed finite angles `(L,)` in radians;
+- `landmark_classes`: five or more preregistered class labels `(L,)`.
 
 Then run:
 
@@ -105,6 +125,8 @@ Exact KRR is useful as a mathematical reference implementation, but it allocates
 
 For this reason `solver: auto` switches to Nyström features above `exact_threshold`. Production deployments at 100k–500k scale should use distributed genotype storage and block/streamed matrix multiplication; the public API intentionally separates the statistical model from storage so an HPC backend can replace the local NumPy backend without changing gate definitions.
 
+CI includes an explicit memory-regression guard that instruments the Nyström path and fails if it silently creates a full training `N x N` kernel.
+
 ## Repository layout
 
 ```text
@@ -112,18 +134,19 @@ src/g2mrf/
   geometry/       M0–M5, envelope checks, fitting, coordinate transforms
   genomics/       train-only standardization, kernels, exact/scalable KRR
   statistics/     metrics, bootstrap, multiplicity
-  data/           analysis-ready IO and synthetic generator
+  data/           validated analysis-ready IO and synthetic generator
   config.py       frozen thresholds/model settings
   planning.py     sample-size planning envelope
+  provenance.py   software/runtime provenance
   gates.py        G1–G5 decision engine
   pipeline.py     end-to-end confirmatory execution
   cli.py          command-line interface
 
-tests/            mathematical, statistical and pipeline tests
+tests/            unit, numerical, integration, reproducibility and failure tests
 configs/          frozen example configuration
-docs/             theory manifest and implementation documentation
+docs/             theory manifest, testing and implementation documentation
 scripts/          optional data conversion/publishing helpers
-.github/workflows CI
+.github/workflows research-grade CI
 ```
 
 ## Reproducibility rules
@@ -136,7 +159,8 @@ scripts/          optional data conversion/publishing helpers
 6. Do not attenuate an observed-scale published `h²` by reliability a second time.
 7. Lock model definitions and thresholds before INTERNAL TEST.
 8. Open INTERNAL and EXTERNAL only once for a confirmatory release.
-9. Report negative results as valid scientific outcomes.
+9. Preserve the report provenance and exact configuration with every result.
+10. Report negative results as valid scientific outcomes.
 
 ## License
 
