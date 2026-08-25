@@ -80,7 +80,10 @@ def fit_model(model: str, theta: np.ndarray, r: np.ndarray, seed: int = 1601001)
         return min(candidates, key=lambda x: x.mse)
 
     bnds = bounds(model)
-    fun = lambda x: _mse(model, theta, r, np.asarray(x, float))
+
+    def fun(x):
+        return _mse(model, theta, r, np.asarray(x, float))
+
     de = differential_evolution(fun, bnds, seed=seed, polish=False, updating="immediate", workers=1, tol=1e-9)
     local = minimize(fun, de.x, method="SLSQP", bounds=bnds, options={"ftol": 1e-12, "maxiter": 1000})
     x = np.asarray(local.x if local.success and local.fun <= de.fun else de.x, float)
