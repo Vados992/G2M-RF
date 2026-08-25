@@ -14,6 +14,7 @@ from .gates import evaluate_gates
 from .genomics.krr import add_intercept, make_genomic_regressor
 from .genomics.preprocessing import GenotypeStandardizer
 from .geometry.fit import fit_population_m4, reconstruct_m4
+from .provenance import software_provenance
 from .splitting import family_aware_split
 from .statistics.bootstrap import (
     bootstrap_eta,
@@ -192,6 +193,7 @@ def run_confirmatory(bundle: DataBundle, cfg: RunConfig | None = None) -> dict:
     )
     return {
         "framework": "G2M-RF v2.0",
+        "provenance": software_provenance(),
         "config": {"gates": asdict(cfg.gates), "model": asdict(cfg.model)},
         "metrics": metrics,
         "transfer_ratio": transfer_ratio,
