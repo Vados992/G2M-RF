@@ -12,6 +12,7 @@ from g2mrf.geometry.fit import fit_model
 from g2mrf.geometry.models import physical_envelope, radius
 from g2mrf.pipeline import run_confirmatory
 from g2mrf.planning import daetwyler_r2, required_n
+from g2mrf.splitting import family_aware_split
 from g2mrf.statistics.metrics import aggregate_r2
 
 
@@ -45,6 +46,32 @@ def test_standardizer_imputes_missing_values_to_finite_output():
 def test_standardizer_transform_before_fit_fails():
     with pytest.raises(RuntimeError, match="fit first"):
         GenotypeStandardizer().transform(np.zeros((2, 2)))
+
+
+def test_standardizer_rejects_out_of_range_dosage():
+    G = np.array([[0.0, 1.0], [2.1, 0.0], [1.0, 2.0]])
+    with pytest.raises(ValueError, match="dosages"):
+        GenotypeStandardizer().fit(G)
+
+
+def test_standardizer_rejects_variant_count_change_at_transform():
+    G = np.array([[0.0, 1.0], [2.0, 0.0], [1.0, 2.0]])
+    gs = GenotypeStandardizer().fit(G)
+    with pytest.raises(ValueError, match="same variant count"):
+        gs.transform(np.zeros((2, 3)))
+
+
+def test_family_split_rejects_invalid_fractions():
+    ids = np.array(["F1", "F2", "F3"])
+    with pytest.raises(ValueError, match="train \+ internal"):
+        family_aware_split(ids, train=0.9, internal=0.2)
+
+
+def test_family_split_rejects_empty_input_and_salt():
+    with pytest.raises(ValueError, match="non-empty 1-D"):
+        family_aware_split(np.array([]))
+    with pytest.raises(ValueError, match="salt"):
+        family_aware_split(np.array(["F1"]), salt="")
 
 
 def test_fit_model_rejects_shape_mismatch():
