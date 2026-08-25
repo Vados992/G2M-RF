@@ -12,9 +12,9 @@
 - `src/g2mrf/cli.py` — `g2mrf` command-line interface
 - `tests/` — 20 mathematical/statistical/software tests
 - `configs/default.yaml` — frozen example thresholds and model settings
-- `docs/` — architecture, data schema, real-data checklist, protocol and theory PDF
+- `docs/` — architecture, data schema, real-data checklist, validation protocol and canonical theory-document manifest
 - `scripts/vcf_to_genotype_npz.py` — optional VCF adapter for moderate datasets
-- `scripts/publish_to_github.ps1` — Windows Git push helper after repository creation
+- `scripts/publish_to_github.ps1` — Windows Git push helper
 - `.github/workflows/ci.yml` — Python 3.10–3.12 CI
 - `Dockerfile` — reproducible runtime container
 - `examples/demo_report.json` — verified synthetic run output
