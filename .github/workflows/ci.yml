@@ -16,7 +16,7 @@ env:
 
 jobs:
   quality:
-    name: quality / coverage / package
+    name: quality / coverage / package / docker
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,9 +30,14 @@ jobs:
           pip install -e ".[dev]"
           pip check
       - name: Static correctness
-        run: ruff check src tests
+        run: ruff check src tests scripts
       - name: Test with branch coverage
-        run: pytest --timeout=120 --cov=g2mrf --cov-branch --cov-report=term-missing
+        run: pytest --timeout=120 --cov=g2mrf --cov-branch --cov-report=term-missing --cov-report=xml
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml
       - name: Build wheel
         run: pip wheel . --no-deps -w dist
       - name: CLI end-to-end smoke
@@ -41,6 +46,10 @@ jobs:
           g2mrf plan --h2 0.35 --me 75000 --n 20000 50000 --target 0.05
           g2mrf demo --n 420 --variants 100 --landmarks 20 --bootstrap 20 --out results/ci_demo.json
           python -c "import json; p=json.load(open('results/ci_demo.json', encoding='utf-8')); assert len(p['decision']['gates']) == 5"
+      - name: Docker build and smoke
+        run: |
+          docker build -t g2mrf-ci .
+          docker run --rm g2mrf-ci plan --h2 0.35 --me 75000 --n 20000 --target 0.05
 
   compatibility:
     name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
